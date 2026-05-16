@@ -70,9 +70,3 @@ python CarGross.py `
 - `rho` bajo: clusters mas amplios y menor cantidad de grupos.
 
 El valor usado en las demos es `0.8`.
-
-## Referencias
-
-- Richard P. Lippmann, "An Introduction to Computing with Neural Nets", IEEE ASSP Magazine, April 1987.
-- Material provisto para el TFI: `Lau.pp5.a.11.pdf`.
-- Material provisto sobre Carpenter-Grossberg: `Lau.pp12.a.14.pdf`.
