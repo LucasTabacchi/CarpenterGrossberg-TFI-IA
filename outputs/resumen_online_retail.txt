@@ -1,0 +1,36 @@
+Resumen de corrida - CarGross.py
+
+Cantidad de clientes procesados: 60
+Cantidad de variables utilizadas: 5
+Variables: frecuencia_compra, monto_total, monto_promedio, cantidad_productos, dias_desde_ultima_compra
+Valor de vigilancia: 0.80
+Cantidad de clusters encontrados: 9
+
+Distribucion por cluster:
+Cluster 1: 14 clientes
+Cluster 2: 4 clientes
+Cluster 3: 1 clientes
+Cluster 4: 10 clientes
+Cluster 5: 17 clientes
+Cluster 6: 2 clientes
+Cluster 7: 6 clientes
+Cluster 8: 5 clientes
+Cluster 9: 1 clientes
+
+Umbrales de binarizacion:
+frecuencia_compra: 4.0000
+monto_total: 860.0000
+monto_promedio: 162.5000
+cantidad_productos: 28.5000
+dias_desde_ultima_compra: 29.0000
+
+Prototipos binarios aprendidos:
+Cluster 1: [0, 1, 1, 0, 0]
+Cluster 2: [1, 1, 1, 0, 0]
+Cluster 3: [0, 1, 1, 1, 0]
+Cluster 4: [1, 0, 0, 1, 0]
+Cluster 5: [0, 0, 0, 0, 1]
+Cluster 6: [1, 1, 0, 1, 0]
+Cluster 7: [1, 0, 0, 0, 1]
+Cluster 8: [0, 0, 1, 0, 1]
+Cluster 9: [1, 0, 1, 0, 1]
