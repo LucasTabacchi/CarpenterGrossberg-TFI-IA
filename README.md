@@ -15,7 +15,9 @@ CarpenterGrossberg_TFI/
 ├── requirements.txt
 ├── datasets/
 │   ├── online_retail_procesado.csv
-│   └── customer_shopping_behavior_procesado.csv
+│   ├── diccionario_codificacion_online_retail.csv
+│   ├── customer_shopping_behavior_procesado.csv
+│   └── diccionario_codificacion_customer_shopping_behavior.csv
 ├── outputs/
 │   ├── resultados_online_retail.csv
 │   ├── resultados_customer_behavior.csv
@@ -23,7 +25,9 @@ CarpenterGrossberg_TFI/
 │   └── resumen_customer_behavior.txt
 ├── docs/
 │   ├── Manual_CarGross.md
-│   └── Informe_Corridas.md
+│   ├── Informe_Corridas.md
+│   ├── Diccionario_Codificacion.md
+│   └── Apunte_CarpenterGrossberg_Reconocimiento.pdf
 ├── referencias/
 │   ├── Lau.pp5.a.11.pdf
 │   └── Lau.pp12.a.14.pdf
@@ -80,3 +84,7 @@ El resumen incluye ademas una mini sensibilidad con distintos valores de `rho`, 
 ## Perfil estimado
 
 El CSV de salida agrega `perfil_estimado` con una etiqueta interpretativa basada en los promedios originales de cada cluster y los umbrales usados para binarizar. Por ejemplo, `alto_monto_total_bajo_dias_desde_ultima_compra` indica que ese cluster queda por encima del umbral de monto total y por debajo del umbral de dias desde la ultima compra.
+
+## Diccionarios de codificacion
+
+El repo incluye `docs/Diccionario_Codificacion.md` y dos CSV en `datasets/` con el detalle de columnas derivadas, codigos visibles y variables usadas por la red.

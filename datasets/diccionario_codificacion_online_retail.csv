@@ -1,0 +1,10 @@
+dataset,columna_procesada,origen_conceptual,codigo_o_formula,significado,usada_por_red,observacion
+online_retail_procesado,id_cliente,CustomerID,renombrado/generado,Identificador del cliente,no,No usar para segmentar
+online_retail_procesado,perfil_referencia,criterio de interpretacion,"frecuente; alto_valor; descuentos; ocasional; riesgo_abandono",Etiqueta auxiliar de referencia,no,No entra al algoritmo
+online_retail_procesado,frecuencia_compra,InvoiceNo por CustomerID,count_distinct(InvoiceNo),Cantidad de compras o facturas distintas,si,Variable derivada por cliente
+online_retail_procesado,monto_total,Quantity y UnitPrice por CustomerID,sum(Quantity * UnitPrice),Gasto total por cliente,si,Variable derivada por cliente
+online_retail_procesado,monto_promedio,monto_total y frecuencia_compra,monto_total / frecuencia_compra,Gasto promedio por compra,si,Variable derivada por cliente
+online_retail_procesado,cantidad_productos,Quantity por CustomerID,sum(Quantity),Cantidad total de productos comprados,si,Variable derivada por cliente
+online_retail_procesado,dias_desde_ultima_compra,InvoiceDate por CustomerID,fecha_referencia - max(InvoiceDate),Dias desde la ultima compra,si,Variable derivada por cliente
+online_retail_procesado,uso_descuentos,variable disponible en procesado,"0; 1","0 = no/menor uso de descuentos; 1 = uso de descuentos",no,No usada en la corrida principal
+online_retail_procesado,variedad_productos,StockCode por CustomerID,count_distinct(StockCode),Cantidad de productos distintos,no,No usada en la corrida principal
