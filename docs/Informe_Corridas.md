@@ -31,12 +31,13 @@ Resultado:
 
 - Clientes procesados: 60.
 - Clusters encontrados: 9.
+- Sensibilidad: con `rho = 0.6` se obtienen 6 clusters; con `rho = 0.8` y `rho = 0.95` se obtienen 9 clusters.
 - Archivo de resultados: `outputs/resultados_online_retail.csv`.
 - Resumen: `outputs/resumen_online_retail.txt`.
 
 Interpretacion:
 
-El dataset combina clientes frecuentes, clientes de alto valor, clientes sensibles a descuentos, clientes ocasionales y clientes con riesgo de abandono. Con `rho = 0.8`, la red separo varios subgrupos porque la vigilancia exige alta similitud entre cada cliente y el prototipo del cluster.
+El dataset combina clientes frecuentes, clientes de alto valor, clientes sensibles a descuentos, clientes ocasionales y clientes con riesgo de abandono. Con `rho = 0.8`, la red separo varios subgrupos porque la vigilancia exige alta similitud entre cada cliente y el prototipo del cluster. El resumen generado agrega promedios por cluster y etiquetas como `alto_monto_total_alto_monto_promedio` o `bajo_monto_total_alto_dias_desde_ultima_compra`, que facilitan interpretar cada grupo sin depender solo del numero de cluster.
 
 ## Dataset 2: customer_shopping_behavior_procesado.csv
 
@@ -62,13 +63,14 @@ Resultado:
 
 - Clientes procesados: 60.
 - Clusters encontrados: 4.
+- Sensibilidad: con `rho = 0.6` se obtienen 2 clusters; con `rho = 0.8` se obtienen 4 clusters; con `rho = 0.95` se obtienen 5 clusters.
 - Archivo de resultados: `outputs/resultados_customer_behavior.csv`.
 - Resumen: `outputs/resumen_customer_behavior.txt`.
 
 Interpretacion:
 
-El segundo dataset produjo menos clusters, lo que indica que los patrones binarios resultantes fueron mas compatibles entre si. Esto permite mostrar que el numero de clusters no esta prefijado, sino que depende de los datos, la binarizacion y el valor de vigilancia.
+El segundo dataset produjo menos clusters, lo que indica que los patrones binarios resultantes fueron mas compatibles entre si. Esto permite mostrar que el numero de clusters no esta prefijado, sino que depende de los datos, la binarizacion, el orden incremental y el valor de vigilancia. Las etiquetas interpretativas resumen diferencias como `bajo_monto_compra_bajo_edad`, `bajo_monto_compra_alto_edad` y `alto_monto_compra_alto_edad`.
 
 ## Conclusion
 
-La implementacion cumple el comportamiento central de Carpenter-Grossberg: recibe patrones, compara con prototipos existentes, aplica vigilancia y crea un nuevo cluster cuando ningun prototipo alcanza el umbral. La segmentacion obtenida debe interpretarse analizando los promedios y caracteristicas de cada cluster.
+La implementacion cumple el comportamiento central de Carpenter-Grossberg: recibe patrones, compara con prototipos existentes, aplica vigilancia y crea un nuevo cluster cuando ningun prototipo alcanza el umbral. La segmentacion obtenida debe interpretarse analizando los promedios y caracteristicas de cada cluster, y la sensibilidad por `rho` ayuda a justificar que la cantidad de grupos surge de los datos y de los parametros elegidos.

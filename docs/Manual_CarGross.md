@@ -11,8 +11,8 @@ El programa:
 - usa variables numericas indicadas por el usuario;
 - binariza variables mediante umbrales;
 - aplica el algoritmo Carpenter-Grossberg;
-- genera un CSV con clusters;
-- genera un resumen de corrida;
+- genera un CSV con clusters y etiquetas interpretativas;
+- genera un resumen de corrida con sensibilidad por `rho`;
 - informa errores de uso con ayuda por consola.
 
 ## Limitaciones
@@ -45,6 +45,8 @@ Ejemplo de columnas:
 id_cliente,frecuencia_compra,monto_total,monto_promedio,cantidad_productos,dias_desde_ultima_compra
 ```
 
+Se recomienda indicar `--features` para controlar exactamente que variables entran a la red. Si no se indican, el programa infiere columnas numericas y omite identificadores como `id`, `id_cliente` o `cliente_id`.
+
 ## Uso
 
 ```powershell
@@ -58,6 +60,7 @@ python CarGross.py --input datasets\online_retail_procesado.csv --features frecu
 - `--id-column`: columna identificadora opcional.
 - `--rho`: parametro de vigilancia entre 0 y 1.
 - `--thresholds`: CSV opcional con columnas `feature,threshold`.
+- `--rho-sensitivity`: valores de rho separados por coma para agregar una mini sensibilidad al resumen. Por defecto, `0.6,0.8,0.95`. Use `""` para desactivar.
 - `--output`: CSV de resultados.
 - `--summary`: TXT de resumen.
 - `--min-rows`: minimo de filas requeridas. Por defecto, 50.
@@ -67,7 +70,7 @@ python CarGross.py --input datasets\online_retail_procesado.csv --features frecu
 El CSV de salida conserva las columnas originales y agrega:
 
 - `cluster`: numero de cluster asignado.
-- `perfil_estimado`: etiqueta generica del cluster.
+- `perfil_estimado`: etiqueta interpretativa calculada desde los promedios originales del cluster y los umbrales de binarizacion.
 
 El resumen incluye:
 
@@ -77,7 +80,9 @@ El resumen incluye:
 - cantidad de clusters;
 - distribucion por cluster;
 - umbrales de binarizacion;
-- prototipos binarios aprendidos.
+- prototipos binarios aprendidos;
+- promedios por cluster e interpretacion;
+- sensibilidad de cantidad de clusters ante distintos valores de `rho`.
 
 ## FAQ
 
@@ -91,7 +96,7 @@ Si sube `rho`, la red exige coincidencias mas fuertes y suele crear mas clusters
 
 **3. El perfil estimado es una etiqueta real?**
 
-No. Es una interpretacion posterior. La red devuelve clusters; luego se analizan sus caracteristicas para nombrarlos.
+No. Es una interpretacion posterior. La red devuelve clusters; luego el programa resume los promedios de las variables originales y arma una etiqueta como `alto_monto_bajo_recencia`.
 
 ## Referencias
 

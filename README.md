@@ -4,6 +4,8 @@ Implementacion de una red Carpenter-Grossberg para segmentar clientes desde arch
 
 La red trabaja con patrones binarios. Por eso `CarGross.py` toma variables numericas del CSV, calcula umbrales por mediana y transforma cada variable en 0 o 1 antes de aplicar el algoritmo.
 
+Si no se indica `--features`, el programa infiere variables numericas y omite columnas identificadoras como `id`, `id_cliente` o `cliente_id` para evitar que un identificador distorsione la segmentacion.
+
 ## Estructura
 
 ```text
@@ -48,6 +50,7 @@ python CarGross.py `
   --features frecuencia_compra,monto_total,monto_promedio,cantidad_productos,dias_desde_ultima_compra `
   --id-column id_cliente `
   --rho 0.8 `
+  --rho-sensitivity 0.6,0.8,0.95 `
   --output outputs\resultados_online_retail.csv `
   --summary outputs\resumen_online_retail.txt
 ```
@@ -58,6 +61,7 @@ python CarGross.py `
   --features edad,monto_compra,uso_descuentos,frecuencia_compra,categoria_producto_codificada `
   --id-column id_cliente `
   --rho 0.8 `
+  --rho-sensitivity 0.6,0.8,0.95 `
   --output outputs\resultados_customer_behavior.csv `
   --summary outputs\resumen_customer_behavior.txt
 ```
@@ -70,3 +74,9 @@ python CarGross.py `
 - `rho` bajo: clusters mas amplios y menor cantidad de grupos.
 
 El valor usado en las demos es `0.8`.
+
+El resumen incluye ademas una mini sensibilidad con distintos valores de `rho`, por defecto `0.6,0.8,0.95`, para observar como cambia la cantidad de clusters.
+
+## Perfil estimado
+
+El CSV de salida agrega `perfil_estimado` con una etiqueta interpretativa basada en los promedios originales de cada cluster y los umbrales usados para binarizar. Por ejemplo, `alto_monto_total_bajo_dias_desde_ultima_compra` indica que ese cluster queda por encima del umbral de monto total y por debajo del umbral de dias desde la ultima compra.

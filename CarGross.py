@@ -122,6 +122,8 @@ def infer_numeric_features(rows: list[dict[str, str]], fieldnames: list[str]) ->
     """Selecciona automaticamente columnas numericas."""
     numeric_features: list[str] = []
     for field in fieldnames:
+        if is_identifier_column(field):
+            continue
         try:
             for row in rows:
                 parse_number(row[field])
@@ -131,6 +133,18 @@ def infer_numeric_features(rows: list[dict[str, str]], fieldnames: list[str]) ->
     if len(numeric_features) < 5:
         raise ValueError("No se pudieron inferir 5 variables numericas. Use --features.")
     return numeric_features[:5]
+
+
+def is_identifier_column(field: str) -> bool:
+    """Detecta columnas identificadoras que no deben usarse como variables."""
+    normalized = field.strip().lower().replace("-", "_").replace(" ", "_")
+    compact = normalized.replace("_", "")
+    return (
+        normalized == "id"
+        or normalized.startswith("id_")
+        or normalized.endswith("_id")
+        or compact in {"idcliente", "clienteid", "customerid"}
+    )
 
 
 def parse_number(value: str) -> float:
@@ -185,12 +199,91 @@ def binarize_rows(
     return binary_rows, thresholds
 
 
+def slug_feature_name(feature: str) -> str:
+    slug = "".join(char.lower() if char.isalnum() else "_" for char in feature)
+    return "_".join(part for part in slug.split("_") if part)
+
+
+def build_cluster_profiles(
+    rows: list[dict[str, str]],
+    labels: list[int],
+    features: list[str],
+    thresholds: dict[str, float],
+) -> dict[int, dict[str, object]]:
+    """Resume cada cluster con promedios originales y una etiqueta interpretable."""
+    sums: dict[int, dict[str, float]] = {}
+    counts: Counter[int] = Counter()
+
+    for row, label in zip(rows, labels):
+        counts[label] += 1
+        sums.setdefault(label, {feature: 0.0 for feature in features})
+        for feature in features:
+            sums[label][feature] += parse_number(row[feature])
+
+    profiles: dict[int, dict[str, object]] = {}
+    for label in sorted(counts):
+        averages = {feature: sums[label][feature] / counts[label] for feature in features}
+        strongest_features = sorted(
+            features,
+            key=lambda feature: (-abs(averages[feature] - thresholds[feature]), feature),
+        )[:2]
+        label_parts = []
+        for feature in strongest_features:
+            direction = "alto" if averages[feature] >= thresholds[feature] else "bajo"
+            label_parts.append(f"{direction}_{slug_feature_name(feature)}")
+        profiles[label] = {
+            "label": "_".join(label_parts) if label_parts else f"cluster_{label}",
+            "averages": averages,
+        }
+
+    return profiles
+
+
+def parse_rho_sensitivity(raw_values: str | None) -> list[float]:
+    if raw_values is None or raw_values.strip() == "":
+        return []
+    values: list[float] = []
+    for raw_value in raw_values.split(","):
+        raw_value = raw_value.strip()
+        if not raw_value:
+            continue
+        try:
+            value = float(raw_value)
+        except ValueError as exc:
+            raise ValueError(f"Valor de rho invalido en --rho-sensitivity: {raw_value!r}.") from exc
+        if not 0 <= value <= 1:
+            raise ValueError("Todos los valores de --rho-sensitivity deben estar entre 0 y 1.")
+        values.append(value)
+    return values
+
+
+def build_rho_sensitivity(patterns: list[list[int]], rho_values: list[float]) -> list[dict[str, object]]:
+    """Calcula una mini sensibilidad del numero de clusters ante distintos rho."""
+    sensitivity: list[dict[str, object]] = []
+    for rho in rho_values:
+        network = CarpenterGrossbergNetwork(vigilance=rho)
+        labels = network.fit_predict(patterns)
+        counts = Counter(labels)
+        sensitivity.append(
+            {
+                "rho": rho,
+                "clusters": len(network.prototypes),
+                "distribution": dict(sorted(counts.items())),
+            }
+        )
+    return sensitivity
+
+
 def write_results(
     output_path: Path,
     rows: list[dict[str, str]],
     labels: list[int],
     id_column: str | None,
+    profile_labels: dict[int, str] | None = None,
 ) -> None:
+    if id_column and id_column not in rows[0]:
+        raise ValueError(f"La columna identificadora '{id_column}' no existe en el CSV.")
+
     output_path.parent.mkdir(parents=True, exist_ok=True)
     base_fields = list(rows[0].keys())
     fieldnames = base_fields + ["cluster", "perfil_estimado"]
@@ -201,9 +294,7 @@ def write_results(
         for row, label in zip(rows, labels):
             output_row = dict(row)
             output_row["cluster"] = label
-            output_row["perfil_estimado"] = f"cluster_{label}"
-            if id_column and id_column not in output_row:
-                raise ValueError(f"La columna identificadora '{id_column}' no existe en el CSV.")
+            output_row["perfil_estimado"] = (profile_labels or {}).get(label, f"cluster_{label}")
             writer.writerow(output_row)
 
 
@@ -214,6 +305,8 @@ def write_summary(
     labels: list[int],
     thresholds: dict[str, float],
     network: CarpenterGrossbergNetwork,
+    profiles: dict[int, dict[str, object]],
+    sensitivity: list[dict[str, object]],
 ) -> None:
     summary_path.parent.mkdir(parents=True, exist_ok=True)
     counts = Counter(labels)
@@ -239,6 +332,28 @@ def write_summary(
     for index, prototype in enumerate(network.prototypes, start=1):
         lines.append(f"Cluster {index}: {prototype}")
 
+    lines.extend(["", "Promedios por cluster e interpretacion:"])
+    for cluster_id in sorted(counts):
+        profile = profiles[cluster_id]
+        averages = profile["averages"]
+        averages_text = ", ".join(f"{feature}={averages[feature]:.2f}" for feature in features)
+        lines.append(f"Cluster {cluster_id}: {profile['label']} ({averages_text})")
+
+    if sensitivity:
+        lines.extend(
+            [
+                "",
+                "Analisis de sensibilidad por rho:",
+                "Nota: la red es incremental; los resultados tambien dependen del orden de las filas.",
+            ]
+        )
+        for item in sensitivity:
+            distribution = item["distribution"]
+            distribution_text = ", ".join(
+                f"C{cluster_id}={count}" for cluster_id, count in distribution.items()
+            )
+            lines.append(f"rho {item['rho']:.2f}: {item['clusters']} clusters ({distribution_text})")
+
     summary_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
@@ -255,6 +370,11 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--id-column", help="Columna identificadora opcional, por ejemplo id_cliente.")
     parser.add_argument("--rho", type=float, default=0.8, help="Parametro de vigilancia entre 0 y 1.")
     parser.add_argument("--thresholds", type=Path, help="CSV opcional con columnas feature,threshold.")
+    parser.add_argument(
+        "--rho-sensitivity",
+        default="0.6,0.8,0.95",
+        help="Valores de rho separados por coma para agregar una mini sensibilidad al resumen. Use '' para desactivar.",
+    )
     parser.add_argument("--output", required=True, type=Path, help="CSV de salida con cluster asignado.")
     parser.add_argument("--summary", required=True, type=Path, help="TXT de resumen de corrida.")
     parser.add_argument("--min-rows", type=int, default=50, help="Cantidad minima de filas requeridas.")
@@ -267,15 +387,19 @@ def run(argv: list[str] | None = None) -> int:
 
     try:
         features = parse_feature_list(args.features)
+        rho_sensitivity = parse_rho_sensitivity(args.rho_sensitivity)
         rows, selected_features = read_csv_dataset(args.input, features, min_rows=args.min_rows)
         thresholds = load_thresholds(args.thresholds)
         binary_rows, final_thresholds = binarize_rows(rows, selected_features, thresholds)
 
         network = CarpenterGrossbergNetwork(vigilance=args.rho)
         labels = network.fit_predict(binary_rows)
+        profiles = build_cluster_profiles(rows, labels, selected_features, final_thresholds)
+        profile_labels = {cluster_id: str(profile["label"]) for cluster_id, profile in profiles.items()}
+        sensitivity = build_rho_sensitivity(binary_rows, rho_sensitivity)
 
-        write_results(args.output, rows, labels, args.id_column)
-        write_summary(args.summary, rows, selected_features, labels, final_thresholds, network)
+        write_results(args.output, rows, labels, args.id_column, profile_labels)
+        write_summary(args.summary, rows, selected_features, labels, final_thresholds, network, profiles, sensitivity)
     except ValueError as exc:
         parser.print_usage(sys.stderr)
         print(f"CarGross.py: error: {exc}", file=sys.stderr)

@@ -24,3 +24,15 @@ Cluster 1: [0, 0, 1, 1, 0]
 Cluster 2: [1, 0, 1, 0, 1]
 Cluster 3: [0, 1, 1, 1, 0]
 Cluster 4: [1, 1, 1, 0, 1]
+
+Promedios por cluster e interpretacion:
+Cluster 1: bajo_monto_compra_bajo_edad (edad=24.65, monto_compra=81.12, uso_descuentos=0.71, frecuencia_compra=6.82, categoria_producto_codificada=1.71)
+Cluster 2: bajo_monto_compra_alto_edad (edad=48.29, monto_compra=86.00, uso_descuentos=0.07, frecuencia_compra=1.43, categoria_producto_codificada=4.79)
+Cluster 3: alto_monto_compra_bajo_edad (edad=31.00, monto_compra=125.29, uso_descuentos=0.00, frecuencia_compra=5.71, categoria_producto_codificada=1.00)
+Cluster 4: alto_monto_compra_alto_edad (edad=38.00, monto_compra=199.27, uso_descuentos=0.50, frecuencia_compra=4.00, categoria_producto_codificada=3.50)
+
+Analisis de sensibilidad por rho:
+Nota: la red es incremental; los resultados tambien dependen del orden de las filas.
+rho 0.60: 2 clusters (C1=24, C2=36)
+rho 0.80: 4 clusters (C1=17, C2=14, C3=7, C4=22)
+rho 0.95: 5 clusters (C1=17, C2=14, C3=7, C4=16, C5=6)
