@@ -1,1 +1,2 @@
 pytest>=8.0
+kagglehub>=0.3.0

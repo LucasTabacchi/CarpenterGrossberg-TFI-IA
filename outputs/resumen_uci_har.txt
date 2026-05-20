@@ -1,0 +1,42 @@
+Resumen de corrida - HabitosCarGross.py
+
+Cantidad de personas procesadas: 30
+Cantidad de variables utilizadas: 5
+Variables: dias_activos_semana, minutos_activos_dia, sesiones_entrenamiento_semana, intensidad_promedio, competencias_anuales
+Valor de vigilancia: 0.80
+Cantidad de clusters encontrados: 3
+
+Categorias de habito solicitadas:
+- Sedentario
+- Levemente activo / Moderado
+- Activo
+- Atleta amateur / Competitivo
+- Atleta profesional / Elite
+
+Distribucion por cluster:
+Cluster 1: 21 personas - Activo
+Cluster 2: 4 personas - Activo
+Cluster 3: 5 personas - Activo
+
+Umbrales de binarizacion:
+dias_activos_semana: 3.7850
+minutos_activos_dia: 63.6450
+sesiones_entrenamiento_semana: 2.7000
+intensidad_promedio: 2.8500
+competencias_anuales: 0.0000
+
+Prototipos binarios aprendidos:
+Cluster 1: [0, 0, 0, 0, 1]
+Cluster 2: [0, 0, 1, 1, 1]
+Cluster 3: [1, 1, 1, 1, 1]
+
+Promedios por cluster e interpretacion:
+Cluster 1: Activo | bajo_minutos_activos_dia_bajo_dias_activos_semana (dias_activos_semana=3.66, minutos_activos_dia=61.35, sesiones_entrenamiento_semana=2.66, intensidad_promedio=2.75, competencias_anuales=0.00)
+Cluster 2: Activo | alto_minutos_activos_dia_alto_dias_activos_semana (dias_activos_semana=3.90, minutos_activos_dia=65.48, sesiones_entrenamiento_semana=2.80, intensidad_promedio=2.92, competencias_anuales=0.00)
+Cluster 3: Activo | alto_minutos_activos_dia_alto_dias_activos_semana (dias_activos_semana=3.91, minutos_activos_dia=65.71, sesiones_entrenamiento_semana=2.80, intensidad_promedio=2.92, competencias_anuales=0.00)
+
+Analisis de sensibilidad por rho:
+Nota: la red es incremental; los resultados tambien dependen del orden de las filas.
+rho 0.60: 2 clusters (C1=22, C2=8)
+rho 0.80: 3 clusters (C1=21, C2=4, C3=5)
+rho 0.95: 3 clusters (C1=21, C2=4, C3=5)

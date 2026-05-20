@@ -1,9 +1,9 @@
 #!/usr/bin/env python
-"""CarGross.py: implementacion de la red Carpenter-Grossberg.
+"""HabitosCarGross.py: red Carpenter-Grossberg para habitos de actividad.
 
-La version clasica trabaja con patrones binarios y aprendizaje no supervisado.
-Este programa recibe un CSV, convierte variables numericas a 0/1 mediante
-umbrales, aplica la red y guarda el cluster asignado a cada fila.
+La red conserva la estructura no supervisada del trabajo anterior: toma
+variables numericas, las binariza por mediana o umbrales dados, aprende
+clusters incrementales y luego interpreta cada cluster como un nivel de habito.
 """
 
 from __future__ import annotations
@@ -14,6 +14,23 @@ import statistics
 import sys
 from collections import Counter
 from pathlib import Path
+
+
+ACTIVITY_LEVELS = [
+    "Sedentario",
+    "Levemente activo / Moderado",
+    "Activo",
+    "Atleta amateur / Competitivo",
+    "Atleta profesional / Elite",
+]
+
+DEFAULT_ACTIVITY_FEATURES = [
+    "dias_activos_semana",
+    "minutos_activos_dia",
+    "sesiones_entrenamiento_semana",
+    "intensidad_promedio",
+    "competencias_anuales",
+]
 
 
 class CarpenterGrossbergNetwork:
@@ -66,7 +83,6 @@ class CarpenterGrossbergNetwork:
 
     @staticmethod
     def _matching_score(prototype: list[int], pattern: list[int]) -> float:
-        """Puntaje bottom-up normalizado usado para elegir candidato."""
         overlap = sum(stored_bit & input_bit for stored_bit, input_bit in zip(prototype, pattern))
         prototype_norm = sum(prototype)
         if prototype_norm == 0:
@@ -75,7 +91,6 @@ class CarpenterGrossbergNetwork:
 
     @staticmethod
     def _vigilance_similarity(prototype: list[int], pattern: list[int]) -> float:
-        """Test de vigilancia: |T AND X| / |X|."""
         pattern_norm = sum(pattern)
         overlap = sum(stored_bit & input_bit for stored_bit, input_bit in zip(prototype, pattern))
         if pattern_norm == 0:
@@ -113,16 +128,20 @@ def read_csv_dataset(path: Path, features: list[str] | None, min_rows: int = 50)
         raise ValueError(f"La variable '{missing[0]}' no existe en el CSV.")
 
     if len(selected_features) < 5:
-        raise ValueError("El TFI pide al menos 5 variables de entrada.")
+        raise ValueError("La red de habitos requiere al menos 5 variables de entrada.")
 
     return rows, selected_features
 
 
 def infer_numeric_features(rows: list[dict[str, str]], fieldnames: list[str]) -> list[str]:
-    """Selecciona automaticamente columnas numericas."""
+    """Selecciona columnas numericas, priorizando las cinco variables de habito."""
+    preferred = [feature for feature in DEFAULT_ACTIVITY_FEATURES if feature in fieldnames]
+    if len(preferred) >= 5:
+        return preferred[:5]
+
     numeric_features: list[str] = []
     for field in fieldnames:
-        if is_identifier_column(field):
+        if is_identifier_column(field) or is_reference_column(field):
             continue
         try:
             for row in rows:
@@ -136,15 +155,19 @@ def infer_numeric_features(rows: list[dict[str, str]], fieldnames: list[str]) ->
 
 
 def is_identifier_column(field: str) -> bool:
-    """Detecta columnas identificadoras que no deben usarse como variables."""
     normalized = field.strip().lower().replace("-", "_").replace(" ", "_")
     compact = normalized.replace("_", "")
     return (
         normalized == "id"
         or normalized.startswith("id_")
         or normalized.endswith("_id")
-        or compact in {"idcliente", "clienteid", "customerid"}
+        or compact in {"idpersona", "personaid", "subject", "subjectid", "participantid"}
     )
+
+
+def is_reference_column(field: str) -> bool:
+    normalized = field.strip().lower().replace("-", "_").replace(" ", "_")
+    return normalized in {"nivel_referencia", "perfil_referencia", "habit_level", "activity", "actividad"}
 
 
 def parse_number(value: str) -> float:
@@ -155,7 +178,6 @@ def parse_number(value: str) -> float:
 
 
 def load_thresholds(path: Path | None) -> dict[str, float]:
-    """Lee umbrales opcionales desde un CSV con columnas feature,threshold."""
     if path is None:
         return {}
     if not path.exists():
@@ -204,13 +226,40 @@ def slug_feature_name(feature: str) -> str:
     return "_".join(part for part in slug.split("_") if part)
 
 
+def assign_habit_level(metrics: dict[str, float]) -> str:
+    """Mapea promedios de un cluster a las cinco categorias solicitadas."""
+    days = metrics.get("dias_activos_semana", 0.0)
+    minutes = metrics.get("minutos_activos_dia", 0.0)
+    sessions = metrics.get("sesiones_entrenamiento_semana", 0.0)
+    intensity = metrics.get("intensidad_promedio", 0.0)
+    competitions = metrics.get("competencias_anuales", 0.0)
+
+    score = (
+        min(days, 7.0) / 7.0 * 30
+        + min(minutes, 120.0) / 120.0 * 25
+        + min(sessions, 10.0) / 10.0 * 20
+        + min(max(intensity, 0.0), 5.0) / 5.0 * 15
+        + min(competitions, 12.0) / 12.0 * 10
+    )
+
+    if score < 20:
+        return ACTIVITY_LEVELS[0]
+    if score < 42:
+        return ACTIVITY_LEVELS[1]
+    if score < 64:
+        return ACTIVITY_LEVELS[2]
+    if score < 82:
+        return ACTIVITY_LEVELS[3]
+    return ACTIVITY_LEVELS[4]
+
+
 def build_cluster_profiles(
     rows: list[dict[str, str]],
     labels: list[int],
     features: list[str],
     thresholds: dict[str, float],
 ) -> dict[int, dict[str, object]]:
-    """Resume cada cluster con promedios originales y una etiqueta interpretable."""
+    """Resume cada cluster con promedios originales y nivel de habito estimado."""
     sums: dict[int, dict[str, float]] = {}
     counts: Counter[int] = Counter()
 
@@ -231,8 +280,10 @@ def build_cluster_profiles(
         for feature in strongest_features:
             direction = "alto" if averages[feature] >= thresholds[feature] else "bajo"
             label_parts.append(f"{direction}_{slug_feature_name(feature)}")
+        habit_level = assign_habit_level(averages)
         profiles[label] = {
             "label": "_".join(label_parts) if label_parts else f"cluster_{label}",
+            "habit_level": habit_level,
             "averages": averages,
         }
 
@@ -258,7 +309,6 @@ def parse_rho_sensitivity(raw_values: str | None) -> list[float]:
 
 
 def build_rho_sensitivity(patterns: list[list[int]], rho_values: list[float]) -> list[dict[str, object]]:
-    """Calcula una mini sensibilidad del numero de clusters ante distintos rho."""
     sensitivity: list[dict[str, object]] = []
     for rho in rho_values:
         network = CarpenterGrossbergNetwork(vigilance=rho)
@@ -279,22 +329,24 @@ def write_results(
     rows: list[dict[str, str]],
     labels: list[int],
     id_column: str | None,
-    profile_labels: dict[int, str] | None = None,
+    profiles: dict[int, dict[str, object]],
 ) -> None:
     if id_column and id_column not in rows[0]:
         raise ValueError(f"La columna identificadora '{id_column}' no existe en el CSV.")
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
     base_fields = list(rows[0].keys())
-    fieldnames = base_fields + ["cluster", "perfil_estimado"]
+    fieldnames = base_fields + ["cluster", "perfil_estimado", "nivel_habito_estimado"]
 
     with output_path.open("w", newline="", encoding="utf-8") as handle:
         writer = csv.DictWriter(handle, fieldnames=fieldnames)
         writer.writeheader()
         for row, label in zip(rows, labels):
+            profile = profiles[label]
             output_row = dict(row)
             output_row["cluster"] = label
-            output_row["perfil_estimado"] = (profile_labels or {}).get(label, f"cluster_{label}")
+            output_row["perfil_estimado"] = profile["label"]
+            output_row["nivel_habito_estimado"] = profile["habit_level"]
             writer.writerow(output_row)
 
 
@@ -311,18 +363,23 @@ def write_summary(
     summary_path.parent.mkdir(parents=True, exist_ok=True)
     counts = Counter(labels)
     lines = [
-        "Resumen de corrida - CarGross.py",
+        "Resumen de corrida - HabitosCarGross.py",
         "",
-        f"Cantidad de clientes procesados: {len(rows)}",
+        f"Cantidad de personas procesadas: {len(rows)}",
         f"Cantidad de variables utilizadas: {len(features)}",
         f"Variables: {', '.join(features)}",
         f"Valor de vigilancia: {network.vigilance:.2f}",
         f"Cantidad de clusters encontrados: {len(network.prototypes)}",
         "",
-        "Distribucion por cluster:",
+        "Categorias de habito solicitadas:",
     ]
+    for level in ACTIVITY_LEVELS:
+        lines.append(f"- {level}")
+
+    lines.extend(["", "Distribucion por cluster:"])
     for cluster_id in sorted(counts):
-        lines.append(f"Cluster {cluster_id}: {counts[cluster_id]} clientes")
+        habit_level = profiles[cluster_id]["habit_level"]
+        lines.append(f"Cluster {cluster_id}: {counts[cluster_id]} personas - {habit_level}")
 
     lines.extend(["", "Umbrales de binarizacion:"])
     for feature in features:
@@ -337,7 +394,9 @@ def write_summary(
         profile = profiles[cluster_id]
         averages = profile["averages"]
         averages_text = ", ".join(f"{feature}={averages[feature]:.2f}" for feature in features)
-        lines.append(f"Cluster {cluster_id}: {profile['label']} ({averages_text})")
+        lines.append(
+            f"Cluster {cluster_id}: {profile['habit_level']} | {profile['label']} ({averages_text})"
+        )
 
     if sensitivity:
         lines.extend(
@@ -359,21 +418,21 @@ def write_summary(
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        prog="CarGross.py",
-        description="Red Carpenter-Grossberg clasica para agrupar filas de un CSV en clusters binarios.",
+        prog="HabitosCarGross.py",
+        description="Red Carpenter-Grossberg clasica para agrupar personas segun habitos de actividad.",
     )
     parser.add_argument("--input", required=True, type=Path, help="Ruta del CSV de entrada.")
     parser.add_argument(
         "--features",
-        help="Variables numericas separadas por coma. Ejemplo: frecuencia,monto,recencia,descuento,variedad",
+        help="Variables numericas separadas por coma. Si se omite, se priorizan las variables de habito.",
     )
-    parser.add_argument("--id-column", help="Columna identificadora opcional, por ejemplo id_cliente.")
+    parser.add_argument("--id-column", help="Columna identificadora opcional, por ejemplo id_persona.")
     parser.add_argument("--rho", type=float, default=0.8, help="Parametro de vigilancia entre 0 y 1.")
     parser.add_argument("--thresholds", type=Path, help="CSV opcional con columnas feature,threshold.")
     parser.add_argument(
         "--rho-sensitivity",
         default="0.6,0.8,0.95",
-        help="Valores de rho separados por coma para agregar una mini sensibilidad al resumen. Use '' para desactivar.",
+        help="Valores de rho separados por coma para agregar sensibilidad al resumen. Use '' para desactivar.",
     )
     parser.add_argument("--output", required=True, type=Path, help="CSV de salida con cluster asignado.")
     parser.add_argument("--summary", required=True, type=Path, help="TXT de resumen de corrida.")
@@ -395,14 +454,13 @@ def run(argv: list[str] | None = None) -> int:
         network = CarpenterGrossbergNetwork(vigilance=args.rho)
         labels = network.fit_predict(binary_rows)
         profiles = build_cluster_profiles(rows, labels, selected_features, final_thresholds)
-        profile_labels = {cluster_id: str(profile["label"]) for cluster_id, profile in profiles.items()}
         sensitivity = build_rho_sensitivity(binary_rows, rho_sensitivity)
 
-        write_results(args.output, rows, labels, args.id_column, profile_labels)
+        write_results(args.output, rows, labels, args.id_column, profiles)
         write_summary(args.summary, rows, selected_features, labels, final_thresholds, network, profiles, sensitivity)
     except ValueError as exc:
         parser.print_usage(sys.stderr)
-        print(f"CarGross.py: error: {exc}", file=sys.stderr)
+        print(f"HabitosCarGross.py: error: {exc}", file=sys.stderr)
         return 2
 
     print(f"Corrida finalizada. Resultados: {args.output}")

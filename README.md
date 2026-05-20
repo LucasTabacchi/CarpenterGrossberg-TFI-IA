@@ -1,90 +1,102 @@
-# CarpenterGrossberg_TFI
+# CarpenterGrossberg_Habitos
 
-Implementacion de una red Carpenter-Grossberg para segmentar clientes desde archivos CSV.
+Implementacion de una red Carpenter-Grossberg para agrupar personas segun habitos de actividad fisica.
 
-La red trabaja con patrones binarios. Por eso `CarGross.py` toma variables numericas del CSV, calcula umbrales por mediana y transforma cada variable en 0 o 1 antes de aplicar el algoritmo.
+## Categorias interpretativas
 
-Si no se indica `--features`, el programa infiere variables numericas y omite columnas identificadoras como `id`, `id_cliente` o `cliente_id` para evitar que un identificador distorsione la segmentacion.
+- Sedentario: persona con poca o ninguna actividad fisica.
+- Levemente activo / Moderado: actividad fisica ocasional o ligera.
+- Activo: entrenamiento regular varias veces por semana.
+- Atleta amateur / Competitivo: entrenamiento intenso y competencias locales.
+- Atleta profesional / Elite: entrenamiento muy intenso y competencias de alto nivel.
 
-## Estructura
+## Datasets
 
-```text
-CarpenterGrossberg_TFI/
-├── CarGross.py
-├── README.md
-├── requirements.txt
-├── datasets/
-│   ├── online_retail_procesado.csv
-│   ├── diccionario_codificacion_online_retail.csv
-│   ├── customer_shopping_behavior_procesado.csv
-│   └── diccionario_codificacion_customer_shopping_behavior.csv
-├── outputs/
-│   ├── resultados_online_retail.csv
-│   ├── resultados_customer_behavior.csv
-│   ├── resumen_online_retail.txt
-│   └── resumen_customer_behavior.txt
-├── docs/
-│   ├── Manual_CarGross.md
-│   ├── Informe_Corridas.md
-│   ├── Diccionario_Codificacion.md
-│   └── Apunte_CarpenterGrossberg_Reconocimiento.pdf
-├── referencias/
-│   ├── Lau.pp5.a.11.pdf
-│   └── Lau.pp12.a.14.pdf
-└── tests/
-    └── test_cargross.py
+El proyecto usa dos fuentes:
+
+1. `datasets/uci_har_habitos_procesado.csv`: derivado del dataset UCI Human Activity Recognition Using Smartphones. Se agrega por sujeto usando la proporcion de ventanas activas registradas por smartphone.
+2. `datasets/fitbit_tracker_procesado.csv`: derivado del dataset FitBit Fitness Tracker Data de Kaggle/Bellabeat. Se agregan los archivos `dailyActivity_merged.csv` por usuario.
+
+Fuentes de referencia:
+
+- UCI HAR: https://archive.ics.uci.edu/dataset/240/human+activity+recognition+using+smartphones
+- FitBit Fitness Tracker Data: https://www.kaggle.com/datasets/arashnic/fitbit
+
+Para regenerarlos:
+
+```powershell
+python PrepararDatasets.py
 ```
 
-## Instalacion
+El script maneja las fuentes de forma distinta porque se obtienen de forma distinta:
 
-Se requiere Python 3.10 o superior. El programa no necesita dependencias externas para correr.
+- UCI HAR se descarga automaticamente desde su URL publica y se guarda en `datasets/_raw/`.
+- FitBit se descarga con KaggleHub usando `kagglehub.dataset_download("arashnic/fitbit")`.
 
-Para ejecutar las pruebas se usa `pytest`:
+Para usar la descarga con KaggleHub, instale las dependencias:
 
 ```powershell
 python -m pip install -r requirements.txt
-python -m pytest tests
 ```
+
+## Archivos generados
+
+```text
+datasets/
+├── uci_har_habitos_procesado.csv
+└── fitbit_tracker_procesado.csv
+
+outputs/
+├── resultados_uci_har.csv
+├── resumen_uci_har.txt
+├── resultados_fitbit.csv
+└── resumen_fitbit.txt
+```
+
+Documentacion principal:
+
+```text
+docs/
+├── Manual_HabitosCarGross.md
+├── Informe_Corridas.md
+└── Diccionario_Codificacion.md
+```
+
+## Variables de entrada
+
+Las cinco variables usadas por defecto son:
+
+- `dias_activos_semana`
+- `minutos_activos_dia`
+- `sesiones_entrenamiento_semana`
+- `intensidad_promedio`
+- `competencias_anuales`
+
+`nivel_referencia` queda solo como referencia textual; no se usa como entrada de la red.
 
 ## Demo rapida
 
 ```powershell
-python CarGross.py `
-  --input datasets\online_retail_procesado.csv `
-  --features frecuencia_compra,monto_total,monto_promedio,cantidad_productos,dias_desde_ultima_compra `
-  --id-column id_cliente `
+python HabitosCarGross.py `
+  --input datasets\uci_har_habitos_procesado.csv `
+  --id-column id_persona `
   --rho 0.8 `
-  --rho-sensitivity 0.6,0.8,0.95 `
-  --output outputs\resultados_online_retail.csv `
-  --summary outputs\resumen_online_retail.txt
+  --min-rows 30 `
+  --output outputs\resultados_uci_har.csv `
+  --summary outputs\resumen_uci_har.txt
 ```
 
 ```powershell
-python CarGross.py `
-  --input datasets\customer_shopping_behavior_procesado.csv `
-  --features edad,monto_compra,uso_descuentos,frecuencia_compra,categoria_producto_codificada `
-  --id-column id_cliente `
+python HabitosCarGross.py `
+  --input datasets\fitbit_tracker_procesado.csv `
+  --id-column id_persona `
   --rho 0.8 `
-  --rho-sensitivity 0.6,0.8,0.95 `
-  --output outputs\resultados_customer_behavior.csv `
-  --summary outputs\resumen_customer_behavior.txt
+  --output outputs\resultados_fitbit.csv `
+  --summary outputs\resumen_fitbit.txt
 ```
 
-## Parametro de vigilancia
+## Pruebas
 
-`--rho` controla que tan parecido debe ser un patron al prototipo de un cluster.
-
-- `rho` alto: clusters mas especificos y mayor cantidad de grupos.
-- `rho` bajo: clusters mas amplios y menor cantidad de grupos.
-
-El valor usado en las demos es `0.8`.
-
-El resumen incluye ademas una mini sensibilidad con distintos valores de `rho`, por defecto `0.6,0.8,0.95`, para observar como cambia la cantidad de clusters.
-
-## Perfil estimado
-
-El CSV de salida agrega `perfil_estimado` con una etiqueta interpretativa basada en los promedios originales de cada cluster y los umbrales usados para binarizar. Por ejemplo, `alto_monto_total_bajo_dias_desde_ultima_compra` indica que ese cluster queda por encima del umbral de monto total y por debajo del umbral de dias desde la ultima compra.
-
-## Diccionarios de codificacion
-
-El repo incluye `docs/Diccionario_Codificacion.md` y dos CSV en `datasets/` con el detalle de columnas derivadas, codigos visibles y variables usadas por la red.
+```powershell
+python -m pytest tests
+```

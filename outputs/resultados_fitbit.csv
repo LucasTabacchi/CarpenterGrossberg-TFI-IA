@@ -1,0 +1,36 @@
+id_persona,fuente,nivel_referencia,dias_activos_semana,minutos_activos_dia,sesiones_entrenamiento_semana,intensidad_promedio,competencias_anuales,cluster,perfil_estimado,nivel_habito_estimado
+FB-1503960366,FitBit Fitness Tracker Data,sin_etiqueta_supervisada,6.86,278.6,6.86,2.07,0,1,bajo_minutos_activos_dia_bajo_sesiones_entrenamiento_semana,Activo
+FB-1624580081,FitBit Fitness Tracker Data,sin_etiqueta_supervisada,7.0,150.64,2.14,1.67,0,1,bajo_minutos_activos_dia_bajo_sesiones_entrenamiento_semana,Activo
+FB-1644430081,FitBit Fitness Tracker Data,sin_etiqueta_supervisada,6.83,228.55,4.44,1.84,0,2,bajo_minutos_activos_dia_bajo_dias_activos_semana,Activo
+FB-1844505072,FitBit Fitness Tracker Data,sin_etiqueta_supervisada,4.17,128.91,0.83,1.52,0,1,bajo_minutos_activos_dia_bajo_sesiones_entrenamiento_semana,Activo
+FB-1927972279,FitBit Fitness Tracker Data,sin_etiqueta_supervisada,4.17,60.95,0.67,1.58,0,1,bajo_minutos_activos_dia_bajo_sesiones_entrenamiento_semana,Activo
+FB-2022484408,FitBit Fitness Tracker Data,sin_etiqueta_supervisada,7.0,314.02,6.67,2.01,0,2,bajo_minutos_activos_dia_bajo_dias_activos_semana,Activo
+FB-2026352035,FitBit Fitness Tracker Data,sin_etiqueta_supervisada,7.0,232.53,1.33,1.5,0,3,alto_minutos_activos_dia_bajo_sesiones_entrenamiento_semana,Atleta amateur / Competitivo
+FB-2320127002,FitBit Fitness Tracker Data,sin_etiqueta_supervisada,6.5,181.42,1.5,1.54,0,1,bajo_minutos_activos_dia_bajo_sesiones_entrenamiento_semana,Activo
+FB-2347167796,FitBit Fitness Tracker Data,sin_etiqueta_supervisada,6.78,287.42,5.47,1.77,0,4,alto_minutos_activos_dia_bajo_dias_activos_semana,Atleta amateur / Competitivo
+FB-2873212765,FitBit Fitness Tracker Data,sin_etiqueta_supervisada,7.0,316.53,5.17,1.66,0,4,alto_minutos_activos_dia_bajo_dias_activos_semana,Atleta amateur / Competitivo
+FB-2891001357,FitBit Fitness Tracker Data,sin_etiqueta_supervisada,2.62,251.25,0.88,1.99,0,5,alto_minutos_activos_dia_bajo_dias_activos_semana,Activo
+FB-3372868164,FitBit Fitness Tracker Data,sin_etiqueta_supervisada,6.77,328.17,4.29,1.62,0,3,alto_minutos_activos_dia_bajo_sesiones_entrenamiento_semana,Atleta amateur / Competitivo
+FB-3977333714,FitBit Fitness Tracker Data,sin_etiqueta_supervisada,6.83,253.62,6.32,2.05,0,2,bajo_minutos_activos_dia_bajo_dias_activos_semana,Activo
+FB-4020332650,FitBit Fitness Tracker Data,sin_etiqueta_supervisada,4.85,115.22,2.37,1.73,0,1,bajo_minutos_activos_dia_bajo_sesiones_entrenamiento_semana,Activo
+FB-4057192912,FitBit Fitness Tracker Data,sin_etiqueta_supervisada,3.2,55.94,0.8,1.71,0,1,bajo_minutos_activos_dia_bajo_sesiones_entrenamiento_semana,Activo
+FB-4319703577,FitBit Fitness Tracker Data,sin_etiqueta_supervisada,6.22,252.72,5.13,1.64,0,4,alto_minutos_activos_dia_bajo_dias_activos_semana,Atleta amateur / Competitivo
+FB-4388161847,FitBit Fitness Tracker Data,sin_etiqueta_supervisada,4.82,216.9,4.51,1.91,0,2,bajo_minutos_activos_dia_bajo_dias_activos_semana,Activo
+FB-4445114986,FitBit Fitness Tracker Data,sin_etiqueta_supervisada,7.0,213.91,1.56,1.61,0,3,alto_minutos_activos_dia_bajo_sesiones_entrenamiento_semana,Atleta amateur / Competitivo
+FB-4558609924,FitBit Fitness Tracker Data,sin_etiqueta_supervisada,7.0,294.51,4.67,1.66,0,6,alto_minutos_activos_dia_alto_sesiones_entrenamiento_semana,Atleta amateur / Competitivo
+FB-4702921684,FitBit Fitness Tracker Data,sin_etiqueta_supervisada,6.84,268.09,5.13,1.69,0,6,alto_minutos_activos_dia_alto_sesiones_entrenamiento_semana,Atleta amateur / Competitivo
+FB-5553957443,FitBit Fitness Tracker Data,sin_etiqueta_supervisada,7.0,237.3,4.67,1.93,0,6,alto_minutos_activos_dia_alto_sesiones_entrenamiento_semana,Atleta amateur / Competitivo
+FB-5577150313,FitBit Fitness Tracker Data,sin_etiqueta_supervisada,6.66,265.68,6.66,2.8,0,7,bajo_minutos_activos_dia_alto_sesiones_entrenamiento_semana,Atleta amateur / Competitivo
+FB-6117666160,FitBit Fitness Tracker Data,sin_etiqueta_supervisada,5.56,295.26,3.41,1.53,0,4,alto_minutos_activos_dia_bajo_dias_activos_semana,Atleta amateur / Competitivo
+FB-6290855005,FitBit Fitness Tracker Data,sin_etiqueta_supervisada,5.08,188.82,1.93,1.62,0,1,bajo_minutos_activos_dia_bajo_sesiones_entrenamiento_semana,Activo
+FB-6391747486,FitBit Fitness Tracker Data,sin_etiqueta_supervisada,1.56,40.11,1.56,1.97,0,2,bajo_minutos_activos_dia_bajo_dias_activos_semana,Activo
+FB-6775888955,FitBit Fitness Tracker Data,sin_etiqueta_supervisada,4.35,98.66,3.59,2.33,0,2,bajo_minutos_activos_dia_bajo_dias_activos_semana,Activo
+FB-6962181067,FitBit Fitness Tracker Data,sin_etiqueta_supervisada,7.0,298.27,6.05,1.92,0,6,alto_minutos_activos_dia_alto_sesiones_entrenamiento_semana,Atleta amateur / Competitivo
+FB-7007744171,FitBit Fitness Tracker Data,sin_etiqueta_supervisada,6.81,331.32,6.05,1.95,0,6,alto_minutos_activos_dia_alto_sesiones_entrenamiento_semana,Atleta amateur / Competitivo
+FB-7086361926,FitBit Fitness Tracker Data,sin_etiqueta_supervisada,6.5,193.19,5.67,2.37,0,7,bajo_minutos_activos_dia_alto_sesiones_entrenamiento_semana,Atleta amateur / Competitivo
+FB-8053475328,FitBit Fitness Tracker Data,sin_etiqueta_supervisada,7.0,246.98,6.66,2.77,0,6,alto_minutos_activos_dia_alto_sesiones_entrenamiento_semana,Atleta amateur / Competitivo
+FB-8253242879,FitBit Fitness Tracker Data,sin_etiqueta_supervisada,5.6,120.0,4.2,2.07,0,2,bajo_minutos_activos_dia_bajo_dias_activos_semana,Activo
+FB-8378563200,FitBit Fitness Tracker Data,sin_etiqueta_supervisada,7.0,227.72,5.67,2.46,0,8,bajo_minutos_activos_dia_alto_sesiones_entrenamiento_semana,Atleta amateur / Competitivo
+FB-8583815059,FitBit Fitness Tracker Data,sin_etiqueta_supervisada,6.33,163.9,4.0,1.83,0,2,bajo_minutos_activos_dia_bajo_dias_activos_semana,Activo
+FB-8792009665,FitBit Fitness Tracker Data,sin_etiqueta_supervisada,4.72,109.15,1.75,1.6,0,1,bajo_minutos_activos_dia_bajo_sesiones_entrenamiento_semana,Activo
+FB-8877689391,FitBit Fitness Tracker Data,sin_etiqueta_supervisada,7.0,314.12,6.83,2.29,0,6,alto_minutos_activos_dia_alto_sesiones_entrenamiento_semana,Atleta amateur / Competitivo
