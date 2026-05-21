@@ -77,7 +77,7 @@ Las cinco variables usadas por defecto son:
 ## Demo rapida
 
 ```powershell
-python HabitosCarGross.py `
+python CarGross.py `
   --input datasets\uci_har_habitos_procesado.csv `
   --id-column id_persona `
   --rho 0.8 `
@@ -87,7 +87,7 @@ python HabitosCarGross.py `
 ```
 
 ```powershell
-python HabitosCarGross.py `
+python CarGross.py `
   --input datasets\fitbit_tracker_procesado.csv `
   --id-column id_persona `
   --rho 0.8 `
