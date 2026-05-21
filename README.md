@@ -57,7 +57,7 @@ Documentacion principal:
 
 ```text
 docs/
-├── Manual_HabitosCarGross.md
+├── Manual_CarGross.md
 ├── Informe_Corridas.md
 └── Diccionario_Codificacion.md
 ```
