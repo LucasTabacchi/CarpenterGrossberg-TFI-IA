@@ -1,4 +1,4 @@
-# Diccionario de codificacion - HabitosCarGross.py
+# Diccionario de codificacion - CarGross.py
 
 ## Columnas de referencia
 
