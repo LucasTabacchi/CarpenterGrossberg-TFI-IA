@@ -16,6 +16,7 @@ La implementación realizada es una variante simplificada basada en Fuzzy ART y 
 
 El proyecto se organiza de la siguiente manera:
 
+```text
 TPI_IA/
 │
 ├── CarGross.py
@@ -48,6 +49,7 @@ TPI_IA/
 └── Docs/
     ├── Manual_de_Referencia.docx
     ├── Informe.docx
+```
 
 ### Archivos principales
 
