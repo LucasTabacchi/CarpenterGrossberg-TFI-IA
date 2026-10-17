@@ -1,0 +1,15 @@
+Genero,Vigilancia,Registros,Clusters,Clusters_homogeneos_Workout,Clusters_3_o_menos,Clusters_1_usuario,Mayor_cluster,Coherencia_Workout_pct,Predominancia_Experience_pct
+femenino,0.6,215,35,17,7,0,17,80.93,66.05
+femenino,0.65,215,37,23,11,0,14,87.44,74.42
+femenino,0.7,215,44,37,12,1,11,95.81,66.51
+femenino,0.75,215,52,47,22,4,8,97.21,68.84
+femenino,0.8,215,57,56,26,4,8,99.53,73.95
+femenino,0.85,215,71,71,49,6,6,100.0,72.56
+femenino,0.9,215,91,91,81,19,5,100.0,76.74
+masculino,0.6,221,35,21,7,0,12,87.33,70.14
+masculino,0.65,221,50,29,19,0,12,84.62,72.4
+masculino,0.7,221,53,39,24,1,10,93.21,70.14
+masculino,0.75,221,52,48,20,1,9,97.74,73.76
+masculino,0.8,221,61,61,30,4,7,100.0,71.49
+masculino,0.85,221,77,77,59,7,6,100.0,76.47
+masculino,0.9,221,97,97,86,24,6,100.0,76.02
